@@ -10,45 +10,43 @@ The Jetson Xavier-NX pinmux file, for JetsonXavier-NX TN-TEK 3/8 series.
 
 ### Create pinmux file
 Edit **Jetson_Xavier_NX_Pinmux_Configuration_Template_v1.06.xlsm** under windows environment.
+Click On the **macro**(Generate DT file) on top of the xlsm. 
 
+![image](https://user-images.githubusercontent.com/83322668/176626118-381a21d3-b126-46c8-830d-8f53ce22600a.png)
 
-### Copy files to device-tree location(For example: TEK3-NVJETSON)
-Copy **tegra210-tek3-gpio-default.dtsi**
-to 
-```
-<nvidia_folder>/Linux_for_Tegra/sources/hardware/nvidia/platform/t210/porg/kernel-dts/porg-platforms/tegra210-tek3-nvjetson-a1-gpio-default.dtsi
-```
-Copy **tegra210-tek3-pinmux.dtsi**
-to 
-```
-<nvidia_folder>/Linux_for_Tegra/sources/hardware/nvidia/platform/t210/porg/kernel-dts/porg-platforms/tegra210-tek3-nvjetson-a1-pinmux.dtsi
-```
+Click OK
 
-### Take effect
-Just re-compile the kernel/ device-tree.
-``` coffeescript
-$ cd <nvidia_folder>/Linux_for_Tegra/sources/kernel/kernel-4.9/
-$ ./compile_kernel.sh
-```
+![image](https://user-images.githubusercontent.com/83322668/176626422-6fe8cbb8-4018-499b-96a8-68c239bd0eba.png)
 
-* Copy new device-tree to device
+Type the \<name> twice. (For example: tek3)
 
-Copy **Linux_for_Tegra/sources/kernel/kernel-4.9/arch/arm64/boot/dts/tegra210-tek3-nvjetson-a1.dtb**
+![image](https://user-images.githubusercontent.com/83322668/176626516-96205bce-12a1-4061-824a-12f70f11cfb4.png)
 
-to device 
-```
-/boot/
-```
-&nbsp;
+You will see the result
 
-* Copy new device-tree to workspace, create new system.img and flash.
+![image](https://user-images.githubusercontent.com/83322668/176626603-5465cbcd-986e-4093-bb1c-05c16736c5bd.png)
 
-Copy **Linux_for_Tegra/sources/kernel/kernel-4.9/arch/arm64/boot/dts/tegra210-tek3-nvjetson-a1.dtb**
-
-to 
-```
-<nvidia_folder>/Linux_for_Tegra/rootfs/boot/
-```
+### Generate pinmux cfg (For example: tek3)
 ```coffeescript
-$ sudo ./flash.sh jetson-nano-devkit-emmc mmcblk0p1 
+# Copy files to script location
+$ cp -rv tegra19x-tek3-pinmux.dtsi <nvidia_folder>/Linux_for_Tegra/kernel/pinmux/t19x/
+$ cp -rv tegra19x-tek3-gpio-default.dtsi <nvidia_folder>/Linux_for_Tegra/kernel/pinmux/t19x/
+$ cp -rv tegra19x-tek3-padvoltage-default.dtsi <nvidia_folder>/Linux_for_Tegra/kernel/pinmux/t19x/
+
+# Generation cfg file
+$ cd <nvidia_folder>/Linux_for_Tegra/kernel/pinmux/t19x/
+$ python pinmux-dts2cfg.py --pinmux addr_info.txt gpio_addr_info.txt por_val.txt    \
+                tegra19x-tek3-pinmux.dtsi tegra19x-tek3-gpio-default.dtsi \
+                1.0 > TEST_tegra19x-mb1-pinmux-p3668-a01.cfg
+```
+### Copy pinmux cfg file and flash into device
+```coffeescript
+# Copy cfg files
+$ sudo cp -rp TEST_tegra19x-mb1-pinmux-p3668-a01.cfg \
+                <nvidia_folder>/Linux_for_Tegra/bootloader/t186ref/BCT/tegra19x-mb1-pinmux-p3668-a01.cfg
+
+# flash into device
+$ cd <nvidia_folder>/Linux_for_Tegra
+$ sudo ./flash.sh -k MB1_BCT jetson-xavier-nx-devkit-emmc mmcblk0p1
+
 ```
